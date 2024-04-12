@@ -1,22 +1,19 @@
 import os
 from pathlib import Path
 
-# import requests
 from dotenv import load_dotenv
-from fsspec import filesystem, fuse
-from fsspec.implementations.dbfs import DatabricksFileSystem
-from fsspec.implementations.local import LocalFileSystem
+from fsspec import fuse
+
+from dbfs_modified import DatabricksFileSystem
 
 load_dotenv()
 
-# # from fsspec.implementations.dbfs import DatabricksFileSystem
+mount_path = Path("dbfs")
+mount_path.mkdir(exist_ok=True)
 
-
-
-fs = filesystem("dbfs", instance=os.getenv("DATABRICKS_INSTANCE"), token=os.getenv("DATABRICKS_TOKEN"))
-
-
-print(fs.ls("/databricks-datasets/"))
-
-
-# fuse.run(fs, path="/", mount_point="/workspaces/db_fsspec/databricks-datasets/", threads=False, foreground=True)
+fs = DatabricksFileSystem(
+    instance=os.getenv("DATABRICKS_INSTANCE"), token=os.getenv("DATABRICKS_TOKEN")
+)
+fuse.run(
+    fs, path="/", mount_point=str(mount_path.absolute()), threads=False, foreground=True
+)
